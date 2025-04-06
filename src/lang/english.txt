@@ -964,6 +964,8 @@ STR_GAME_OPTIONS_TAB_GRAPHICS                                   :Graphics
 STR_GAME_OPTIONS_TAB_GRAPHICS_TOOLTIP                           :{BLACK}Choose graphics settings
 STR_GAME_OPTIONS_TAB_SOUND                                      :Sound
 STR_GAME_OPTIONS_TAB_SOUND_TOOLTIP                              :{BLACK}Choose sound and music settings
+STR_GAME_OPTIONS_TAB_CONTROLS                                   :Controls
+STR_GAME_OPTIONS_TAB_CONTROLS_TOOLTIP                           :{BLACK}Choose controls settings
 STR_GAME_OPTIONS_TAB_SOCIAL                                     :Social
 STR_GAME_OPTIONS_TAB_SOCIAL_TOOLTIP                             :{BLACK}Choose social integration settings
 
@@ -1098,6 +1100,10 @@ STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :{BLACK}Addition
 STR_GAME_OPTIONS_BASE_MUSIC                                     :{BLACK}Base music set
 STR_GAME_OPTIONS_BASE_MUSIC_TOOLTIP                             :{BLACK}Select the base music set to use
 STR_GAME_OPTIONS_BASE_MUSIC_DESCRIPTION_TOOLTIP                 :{BLACK}Additional information about the base music set
+
+STR_GAME_OPTIONS_BASE_HOTKEYS                                   :{BLACK}Hot Keys Config
+STR_GAME_OPTIONS_LOAD_HOTKEYS                                   :{BLACK}Reload hot keys
+STR_GAME_OPTIONS_LOAD_HOTKEYS_TOOLTIP                           :{BLACK}Load from hotkeys.cfg file
 
 STR_GAME_OPTIONS_ONLINE_CONTENT                                 :Get Content
 STR_GAME_OPTIONS_ONLINE_CONTENT_TOOLTIP                         :Check for new and updated content to download

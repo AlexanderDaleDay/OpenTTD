@@ -50,6 +50,7 @@
 #include "social_integration.h"
 #include "sound_func.h"
 #include "settingentry_gui.h"
+#include "hotkeys.h"
 
 #include "table/strings.h"
 
@@ -571,7 +572,7 @@ struct GameOptionsWindow : Window {
 
 	void SetTab(WidgetID widget)
 	{
-		this->SetWidgetsLoweredState(false, WID_GO_TAB_GENERAL, WID_GO_TAB_GRAPHICS, WID_GO_TAB_SOUND, WID_GO_TAB_SOCIAL);
+		this->SetWidgetsLoweredState(false, WID_GO_TAB_GENERAL, WID_GO_TAB_GRAPHICS, WID_GO_TAB_SOUND, WID_GO_TAB_CONTROLS, WID_GO_TAB_SOCIAL);
 		this->LowerWidget(widget);
 		GameOptionsWindow::active_tab = widget;
 
@@ -580,7 +581,8 @@ struct GameOptionsWindow : Window {
 			case WID_GO_TAB_GENERAL: pane = 0; break;
 			case WID_GO_TAB_GRAPHICS: pane = 1; break;
 			case WID_GO_TAB_SOUND: pane = 2; break;
-			case WID_GO_TAB_SOCIAL: pane = 3; break;
+			case WID_GO_TAB_CONTROLS: pane = 3; break;
+			case WID_GO_TAB_SOCIAL: pane = 4; break;
 			default: NOT_REACHED();
 		}
 
@@ -675,6 +677,7 @@ struct GameOptionsWindow : Window {
 			case WID_GO_TAB_GENERAL:
 			case WID_GO_TAB_GRAPHICS:
 			case WID_GO_TAB_SOUND:
+			case WID_GO_TAB_CONTROLS:
 			case WID_GO_TAB_SOCIAL:
 				this->SetTab(widget);
 				break;
@@ -873,6 +876,10 @@ struct GameOptionsWindow : Window {
 				}
 				break;
 			}
+
+			case WID_GO_LOAD_HOTKEYS_BUTTON:
+				LoadHotkeysFromConfig();
+				break;
 		}
 	}
 
@@ -1004,11 +1011,13 @@ static constexpr NWidgetPart _nested_game_options_widgets[] = {
 			NWidget(WWT_TEXTBTN, COLOUR_YELLOW, WID_GO_TAB_GENERAL),  SetMinimalTextLines(2, 0), SetStringTip(STR_GAME_OPTIONS_TAB_GENERAL, STR_GAME_OPTIONS_TAB_GENERAL_TOOLTIP), SetFill(1, 0),
 			NWidget(WWT_TEXTBTN, COLOUR_YELLOW, WID_GO_TAB_GRAPHICS), SetMinimalTextLines(2, 0), SetStringTip(STR_GAME_OPTIONS_TAB_GRAPHICS, STR_GAME_OPTIONS_TAB_GRAPHICS_TOOLTIP), SetFill(1, 0),
 			NWidget(WWT_TEXTBTN, COLOUR_YELLOW, WID_GO_TAB_SOUND),    SetMinimalTextLines(2, 0), SetStringTip(STR_GAME_OPTIONS_TAB_SOUND, STR_GAME_OPTIONS_TAB_SOUND_TOOLTIP), SetFill(1, 0),
+			NWidget(WWT_TEXTBTN, COLOUR_YELLOW, WID_GO_TAB_CONTROLS), SetMinimalTextLines(2, 0), SetStringTip(STR_GAME_OPTIONS_TAB_CONTROLS, STR_GAME_OPTIONS_TAB_CONTROLS_TOOLTIP), SetFill(1, 0),
 			NWidget(WWT_TEXTBTN, COLOUR_YELLOW, WID_GO_TAB_SOCIAL),   SetMinimalTextLines(2, 0), SetStringTip(STR_GAME_OPTIONS_TAB_SOCIAL, STR_GAME_OPTIONS_TAB_SOCIAL_TOOLTIP), SetFill(1, 0),
 		EndContainer(),
 	EndContainer(),
 	NWidget(WWT_PANEL, COLOUR_GREY),
 		NWidget(NWID_SELECTION, INVALID_COLOUR, WID_GO_TAB_SELECTION),
+
 			/* General tab */
 			NWidget(NWID_VERTICAL), SetPadding(WidgetDimensions::unscaled.sparse), SetPIP(0, WidgetDimensions::unscaled.vsep_wide, 0),
 				NWidget(WWT_FRAME, COLOUR_GREY), SetStringTip(STR_GAME_OPTIONS_LANGUAGE),
@@ -1050,7 +1059,7 @@ static constexpr NWidgetPart _nested_game_options_widgets[] = {
 							NWidget(WWT_TEXT, INVALID_COLOUR), SetMinimalSize(0, 12), SetFill(1, 0), SetStringTip(STR_GAME_OPTIONS_GUI_SCALE_BEVELS),
 							NWidget(WWT_TEXTBTN, COLOUR_GREY, WID_GO_GUI_SCALE_BEVEL_BUTTON), SetAspect(WidgetDimensions::ASPECT_SETTINGS_BUTTON), SetStringTip(STR_EMPTY, STR_GAME_OPTIONS_GUI_SCALE_BEVELS_TOOLTIP),
 						EndContainer(),
-#ifdef HAS_TRUETYPE_FONT
+						#ifdef HAS_TRUETYPE_FONT
 						NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_normal, 0),
 							NWidget(WWT_TEXT, INVALID_COLOUR), SetMinimalSize(0, 12), SetFill(1, 0), SetStringTip(STR_GAME_OPTIONS_GUI_FONT_SPRITE),
 							NWidget(WWT_TEXTBTN, COLOUR_GREY, WID_GO_GUI_FONT_SPRITE), SetAspect(WidgetDimensions::ASPECT_SETTINGS_BUTTON), SetStringTip(STR_EMPTY, STR_GAME_OPTIONS_GUI_FONT_SPRITE_TOOLTIP),
@@ -1059,7 +1068,7 @@ static constexpr NWidgetPart _nested_game_options_widgets[] = {
 							NWidget(WWT_TEXT, INVALID_COLOUR), SetMinimalSize(0, 12), SetFill(1, 0), SetStringTip(STR_GAME_OPTIONS_GUI_FONT_AA),
 							NWidget(WWT_TEXTBTN, COLOUR_GREY, WID_GO_GUI_FONT_AA), SetAspect(WidgetDimensions::ASPECT_SETTINGS_BUTTON), SetStringTip(STR_EMPTY, STR_GAME_OPTIONS_GUI_FONT_AA_TOOLTIP),
 						EndContainer(),
-#endif /* HAS_TRUETYPE_FONT */
+						#endif /* HAS_TRUETYPE_FONT */
 					EndContainer(),
 				EndContainer(),
 
@@ -1081,12 +1090,12 @@ static constexpr NWidgetPart _nested_game_options_widgets[] = {
 							NWidget(WWT_TEXT, INVALID_COLOUR), SetMinimalSize(0, 12), SetFill(1, 0), SetStringTip(STR_GAME_OPTIONS_VIDEO_ACCELERATION),
 							NWidget(WWT_TEXTBTN, COLOUR_GREY, WID_GO_VIDEO_ACCEL_BUTTON), SetAspect(WidgetDimensions::ASPECT_SETTINGS_BUTTON), SetStringTip(STR_EMPTY, STR_GAME_OPTIONS_VIDEO_ACCELERATION_TOOLTIP),
 						EndContainer(),
-#ifndef __APPLE__
+						#ifndef __APPLE__
 						NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_normal, 0),
 							NWidget(WWT_TEXT, INVALID_COLOUR), SetMinimalSize(0, 12), SetFill(1, 0), SetStringTip(STR_GAME_OPTIONS_VIDEO_VSYNC),
 							NWidget(WWT_TEXTBTN, COLOUR_GREY, WID_GO_VIDEO_VSYNC_BUTTON), SetAspect(WidgetDimensions::ASPECT_SETTINGS_BUTTON), SetStringTip(STR_EMPTY, STR_GAME_OPTIONS_VIDEO_VSYNC_TOOLTIP),
 						EndContainer(),
-#endif
+						#endif
 						NWidget(NWID_HORIZONTAL),
 							NWidget(WWT_EMPTY, INVALID_COLOUR, WID_GO_VIDEO_DRIVER_INFO), SetMinimalTextLines(1, 0), SetFill(1, 0),
 						EndContainer(),
@@ -1165,6 +1174,13 @@ static constexpr NWidgetPart _nested_game_options_widgets[] = {
 							NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_GO_BASE_MUSIC_TEXTFILE + TFT_LICENSE), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TEXTFILE_VIEW_LICENCE, STR_TEXTFILE_VIEW_LICENCE_TOOLTIP),
 						EndContainer(),
 					EndContainer(),
+				EndContainer(),
+			EndContainer(),
+
+			/* Controls tab */
+			NWidget(NWID_VERTICAL), SetPadding(WidgetDimensions::unscaled.sparse), SetPIP(0, WidgetDimensions::unscaled.vsep_wide, 0),
+				NWidget(WWT_FRAME, COLOUR_GREY), SetStringTip(STR_GAME_OPTIONS_BASE_HOTKEYS),
+					NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_GO_LOAD_HOTKEYS_BUTTON), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_GAME_OPTIONS_LOAD_HOTKEYS, STR_GAME_OPTIONS_LOAD_HOTKEYS_TOOLTIP),
 				EndContainer(),
 			EndContainer(),
 
